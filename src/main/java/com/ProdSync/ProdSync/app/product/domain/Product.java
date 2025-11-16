@@ -1,7 +1,7 @@
 package com.ProdSync.ProdSync.app.product.domain;
 
 import com.ProdSync.ProdSync.app.abstractEntity.AbstractEntity;
-import com.ProdSync.ProdSync.app.item.domain.Item;
+import com.ProdSync.ProdSync.app.productItemMapping.ProductItemMapping;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,11 +32,6 @@ public class Product extends AbstractEntity {
     @Column(name = "stockQuantity", nullable = false)
     private Integer stockQuantity;
 
-    @ManyToMany
-    @JoinTable(
-            name = "product_item",
-            joinColumns = @JoinColumn(name = "product"),
-            inverseJoinColumns = @JoinColumn(name = "item")
-    )
-    private List<Item> items;
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductItemMapping> productItems;
 }

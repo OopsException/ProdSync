@@ -1,5 +1,6 @@
 package com.ProdSync.ProdSync.app.product.param;
 
+import com.ProdSync.ProdSync.app.productItemMapping.ProductItemParam;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -15,5 +16,5 @@ public class ProductParam {
     private Long serialNumber;
     private BigDecimal price;
     private Integer stockQuantity;
-    private List<Integer> itemIds;
+    private List<ProductItemParam> items;
 }

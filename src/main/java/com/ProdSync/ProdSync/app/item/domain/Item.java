@@ -1,11 +1,8 @@
 package com.ProdSync.ProdSync.app.item.domain;
 
 import com.ProdSync.ProdSync.app.abstractEntity.AbstractEntity;
-import com.ProdSync.ProdSync.app.product.domain.Product;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import com.ProdSync.ProdSync.app.productItemMapping.ProductItemMapping;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -35,6 +32,6 @@ public class Item extends AbstractEntity {
     @Column(name = "weight", precision = 10, scale = 6)
     private BigDecimal weight;
 
-    @ManyToMany(mappedBy = "items")
-    private List<Product> products;
+    @OneToMany(mappedBy = "item")
+    private List<ProductItemMapping> productItems;
 }

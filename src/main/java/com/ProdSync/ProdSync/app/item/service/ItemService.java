@@ -4,6 +4,7 @@ import com.ProdSync.ProdSync.app.item.bean.ItemBean;
 import com.ProdSync.ProdSync.app.item.dao.ItemRepository;
 import com.ProdSync.ProdSync.app.item.domain.Item;
 import com.ProdSync.ProdSync.app.item.param.ItemParam;
+import com.ProdSync.ProdSync.execption.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,20 +17,21 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
 
-    private void validateDuplicateSerialNumber(Long serialNumber) {
+    private void validateDuplicateSerialNumber(Long serialNumber, Integer id) {
         Optional<Item> existingItem = itemRepository.findBySerialNumber(serialNumber);
-        if (existingItem.isPresent())
-            throw new RuntimeException("An item with this serial number already exists");
+        if (existingItem.isPresent() && !existingItem.get().getId().equals(id))
+            throw RestException.INVALID("An item with this serial number already exists");
     }
 
     public ItemBean getItemBean(Integer id) {
         if (id == null || id <= 0)
-            throw new RuntimeException("Item ID is required");
+            throw RestException.INVALID("Item ID is required");
 
         Item item = itemRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> RestException.INVALID("Item not found"));
 
         return ItemBean.builder()
+                .id(item.getId())
                 .name(item.getName())
                 .altName(item.getAltName())
                 .serialNumber(item.getSerialNumber())
@@ -42,6 +44,7 @@ public class ItemService {
         return itemRepository.findAll().stream()
                 .map(item ->
                         ItemBean.builder()
+                                .id(item.getId())
                                 .name(item.getName())
                                 .altName(item.getAltName())
                                 .serialNumber(item.getSerialNumber())
@@ -51,7 +54,7 @@ public class ItemService {
     }
 
     public void submit(ItemParam param) {
-        validateDuplicateSerialNumber(param.getSerialNumber());
+        validateDuplicateSerialNumber(param.getSerialNumber(), null);
 
         Item item = Item.builder()
                 .name(param.getName())
@@ -66,13 +69,12 @@ public class ItemService {
 
     public void update(ItemParam param) {
         if (param.getId() == null || param.getId() <= 0)
-            throw new RuntimeException("Item ID is required");
+            throw RestException.INVALID("Item ID is required");
 
         Item item = itemRepository.findById(param.getId())
-                .orElseThrow(() -> new RuntimeException("Item not found"));
+                .orElseThrow(() -> RestException.INVALID("Item not found"));
 
-        if (!item.getSerialNumber().equals(param.getSerialNumber()))
-            validateDuplicateSerialNumber(param.getSerialNumber());
+        validateDuplicateSerialNumber(param.getSerialNumber(), param.getId());
 
         item.setName(param.getName());
         item.setAltName(param.getAltName());
@@ -85,7 +87,7 @@ public class ItemService {
 
     public void delete(Integer id) {
         if (id == null || id <= 0)
-            throw new RuntimeException("Item ID is required");
+            throw RestException.INVALID("Item ID is required");
 
         itemRepository.deleteById(id);
     }

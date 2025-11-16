@@ -18,4 +18,5 @@ public class ItemBean {
     private Long serialNumber;
     private BigDecimal price;
     private BigDecimal weight;
+    private Integer quantity;
 }

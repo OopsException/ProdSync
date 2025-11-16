@@ -7,6 +7,8 @@ import com.ProdSync.ProdSync.app.product.bean.ProductBean;
 import com.ProdSync.ProdSync.app.product.domain.Product;
 import com.ProdSync.ProdSync.app.product.param.ProductParam;
 import com.ProdSync.ProdSync.app.product.respository.ProductRepository;
+import com.ProdSync.ProdSync.app.productItemMapping.ProductItemMapping;
+import com.ProdSync.ProdSync.execption.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +25,15 @@ public class ProductService {
     private void validateDuplicateSerialNumber(Long serialNumber, Integer id) {
         Optional<Product> existingProduct = productRepository.findBySerialNumber(serialNumber);
         if (existingProduct.isPresent() && !existingProduct.get().getId().equals(id))
-            throw new RuntimeException("A product with this serial number already exists");
+            throw RestException.INVALID("A product with this serial number already exists");
     }
 
     public ProductBean getProductBean(Integer id) {
         if (id == null || id <= 0)
-            throw new RuntimeException("Product ID is required");
+            throw RestException.INVALID("Product ID is required");
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> RestException.INVALID("Product not found"));
 
         return toBean(product);
     }
@@ -44,63 +46,80 @@ public class ProductService {
     public void submit(ProductParam param) {
         validateDuplicateSerialNumber(param.getSerialNumber(), null);
 
-        List<Item> items = itemRepository.findAllById(param.getItemIds());
-        if (items.size() != param.getItemIds().size())
-            throw new RuntimeException("One or more items not found");
-
         Product product = Product.builder()
                 .name(param.getName())
                 .altName(param.getAltName())
                 .serialNumber(param.getSerialNumber())
                 .price(param.getPrice())
                 .stockQuantity(param.getStockQuantity())
-                .items(items)
                 .build();
 
+        List<ProductItemMapping> mappings = param.getItems().stream()
+                .map(i -> {
+                    Item item = itemRepository.findById(i.getItemId())
+                            .orElseThrow(() -> RestException.INVALID("Item not found: " + i.getItemId()));
+
+                    return ProductItemMapping.builder()
+                            .product(product)
+                            .item(item)
+                            .quantity(i.getQuantity())
+                            .build();
+                }).toList();
+
+        product.setProductItems(mappings);
         productRepository.save(product);
     }
 
     public void update(ProductParam param) {
         if (param.getId() == null || param.getId() <= 0)
-            throw new RuntimeException("Product ID is required");
+            throw RestException.INVALID("Product ID is required");
 
         Product product = productRepository.findById(param.getId())
-                .orElseThrow(() -> new RuntimeException("Product not found"));
+                .orElseThrow(() -> RestException.INVALID("Product not found"));
 
         validateDuplicateSerialNumber(param.getSerialNumber(), param.getId());
-
-        List<Item> items = itemRepository.findAllById(param.getItemIds());
-        if (items.size() != param.getItemIds().size())
-            throw new RuntimeException("One or more items not found");
 
         product.setName(param.getName());
         product.setAltName(param.getAltName());
         product.setSerialNumber(param.getSerialNumber());
         product.setPrice(param.getPrice());
         product.setStockQuantity(param.getStockQuantity());
-        product.setItems(items);
 
+        product.getProductItems().clear();
+        List<ProductItemMapping> newMappings = param.getItems().stream().map(i -> {
+            Item item = itemRepository.findById(i.getItemId())
+                    .orElseThrow(() -> RestException.INVALID("Item not found: " + i.getItemId()));
+
+            return ProductItemMapping.builder()
+                    .product(product)
+                    .item(item)
+                    .quantity(i.getQuantity())
+                    .build();
+        }).toList();
+
+        product.getProductItems().addAll(newMappings);
         productRepository.save(product);
     }
 
     public void delete(Integer id) {
         if (id == null || id <= 0)
-            throw new RuntimeException("Product ID is required");
+            throw RestException.INVALID("Product ID is required");
 
         productRepository.deleteById(id);
     }
 
     private ProductBean toBean(Product product) {
-        List<ItemBean> itemBeans = product.getItems().stream()
+        List<ItemBean> itemBeans = product.getProductItems().stream()
                 .map(i -> ItemBean.builder()
-                        .id(i.getId())
-                        .name(i.getName())
-                        .altName(i.getAltName())
-                        .serialNumber(i.getSerialNumber())
-                        .price(i.getPrice())
-                        .weight(i.getWeight())
-                        .build())
-                .toList();
+                        .id(i.getItem().getId())
+                        .name(i.getItem().getName())
+                        .altName(i.getItem().getAltName())
+                        .serialNumber(i.getItem().getSerialNumber())
+                        .price(i.getItem().getPrice())
+                        .weight(i.getItem().getWeight())
+                        .quantity(i.getQuantity())
+                        .build()
+                ).toList();
 
         return ProductBean.builder()
                 .id(product.getId())

@@ -15,10 +15,4 @@ public abstract class AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @Builder.Default
-    private Boolean isEnabled = true;
-
-    @Builder.Default
-    private Boolean isDeleted = false;
 }
