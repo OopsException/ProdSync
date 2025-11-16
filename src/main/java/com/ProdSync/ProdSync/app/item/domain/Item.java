@@ -2,6 +2,7 @@ package com.ProdSync.ProdSync.app.item.domain;
 
 import com.ProdSync.ProdSync.app.abstractEntity.AbstractEntity;
 import com.ProdSync.ProdSync.app.productItemMapping.ProductItemMapping;
+import com.ProdSync.ProdSync.app.supplier.domain.Supplier;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -34,4 +35,8 @@ public class Item extends AbstractEntity {
 
     @OneToMany(mappedBy = "item")
     private List<ProductItemMapping> productItems;
+
+    @ManyToOne
+    @JoinColumn(name = "supplier")
+    private Supplier supplier;
 }

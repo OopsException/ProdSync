@@ -4,6 +4,8 @@ import com.ProdSync.ProdSync.app.item.bean.ItemBean;
 import com.ProdSync.ProdSync.app.item.dao.ItemRepository;
 import com.ProdSync.ProdSync.app.item.domain.Item;
 import com.ProdSync.ProdSync.app.item.param.ItemParam;
+import com.ProdSync.ProdSync.app.supplier.domain.Supplier;
+import com.ProdSync.ProdSync.app.supplier.repository.SupplierRepository;
 import com.ProdSync.ProdSync.execption.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,7 @@ import java.util.Optional;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final SupplierRepository supplierRepository;
 
     private void validateDuplicateSerialNumber(Long serialNumber, Integer id) {
         Optional<Item> existingItem = itemRepository.findBySerialNumber(serialNumber);
@@ -37,6 +40,7 @@ public class ItemService {
                 .serialNumber(item.getSerialNumber())
                 .price(item.getPrice())
                 .weight(item.getWeight())
+                .supplierName(item.getSupplier().getName())
                 .build();
     }
 
@@ -50,6 +54,7 @@ public class ItemService {
                                 .serialNumber(item.getSerialNumber())
                                 .price(item.getPrice())
                                 .weight(item.getWeight())
+                                .supplierName(item.getSupplier().getName())
                                 .build()).toList();
     }
 
@@ -62,6 +67,7 @@ public class ItemService {
                 .serialNumber(param.getSerialNumber())
                 .price(param.getPrice())
                 .weight(param.getWeight())
+                .supplier(Supplier.builder().id(param.getSupplierId()).build())
                 .build();
 
         itemRepository.save(item);
@@ -81,6 +87,7 @@ public class ItemService {
         item.setSerialNumber(param.getSerialNumber());
         item.setPrice(param.getPrice());
         item.setWeight(param.getWeight());
+        item.setSupplier(Supplier.builder().id(param.getSupplierId()).build());
 
         itemRepository.save(item);
     }

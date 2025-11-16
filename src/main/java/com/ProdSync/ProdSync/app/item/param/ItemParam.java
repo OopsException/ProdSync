@@ -17,4 +17,5 @@ public class ItemParam {
     private Long serialNumber;
     private BigDecimal price;
     private BigDecimal weight;
+    private Integer supplierId;
 }
