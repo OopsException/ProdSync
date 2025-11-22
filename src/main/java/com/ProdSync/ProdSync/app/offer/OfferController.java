@@ -18,7 +18,7 @@ public class OfferController {
 
 	// Offer APIs
     @GetMapping("/{id}")
-    public ResponseEntity<OfferBean> getProduct(
+    public ResponseEntity<OfferBean> getOffer(
 		@PathVariable Integer id,
 		@RequestParam(required = false) Boolean unitEconomics) {
 
@@ -26,24 +26,24 @@ public class OfferController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OfferBean>> getAllProducts() {
+    public ResponseEntity<List<OfferBean>> getAllOffers() {
         return ResponseEntity.ok(offerService.getAllOfferBeans());
     }
 
     @PostMapping
-    public ResponseEntity<String> createProduct(@RequestBody OfferParam param) {
+    public ResponseEntity<String> createOffer(@RequestBody OfferParam param) {
         offerService.submit(param);
         return ResponseEntity.ok("Offer created successfully");
     }
 
     @PutMapping
-    public ResponseEntity<String> updateProduct(@RequestBody OfferParam param) {
+    public ResponseEntity<String> updateOffer(@RequestBody OfferParam param) {
         offerService.update(param);
         return ResponseEntity.ok("Offer updated successfully");
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProduct(@PathVariable Integer id) {
+    public ResponseEntity<String> deleteOffer(@PathVariable Integer id) {
         offerService.delete(id);
         return ResponseEntity.ok("Offer deleted successfully");
     }

@@ -11,6 +11,7 @@ import com.ProdSync.ProdSync.execption.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -45,12 +46,15 @@ public class OfferService {
 		if (param.getProductId() == null || param.getProductId() <= 0)
 			throw RestException.INVALID("Product ID is required");
 
+		if (param.getQuantity() == null || param.getQuantity() <= 0)
+			throw RestException.INVALID("Quantity is required and must be greater than zero");
+
 	    validateDuplicateName(param.getName(), null);
 
         Offer offer = Offer.builder()
 	        .name(param.getName())
 	        .sellingPrice(param.getSellingPrice())
-	        .targetCAC(param.getTargetCAC())
+	        .targetCAC(param.getTargetCAC() != null ? param.getTargetCAC() : BigDecimal.ZERO)
 	        .quantity(param.getQuantity())
 	        .product(new Product(param.getProductId()))
 	        .build();
@@ -65,6 +69,9 @@ public class OfferService {
 		if (param.getProductId() == null || param.getProductId() <= 0)
 			throw RestException.INVALID("Product ID is required");
 
+		if (param.getQuantity() == null || param.getQuantity() <= 0)
+			throw RestException.INVALID("Quantity is required and must be greater than zero");
+
         Offer offer = offerRepository.findById(param.getId())
                 .orElseThrow(() -> RestException.INVALID("Offer not found"));
 
@@ -72,7 +79,7 @@ public class OfferService {
 
         offer.setName(param.getName());
 		offer.setSellingPrice(param.getSellingPrice());
-		offer.setTargetCAC(param.getTargetCAC());
+		offer.setTargetCAC(param.getTargetCAC() != null ? param.getTargetCAC() : BigDecimal.ZERO);
 		offer.setQuantity(param.getQuantity());
 		offer.setProduct(new Product(param.getProductId()));
 
