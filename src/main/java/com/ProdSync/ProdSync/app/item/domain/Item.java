@@ -36,7 +36,7 @@ public class Item extends AbstractEntity {
     @OneToMany(mappedBy = "item")
     private List<ProductItemMapping> productItems;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "supplier")
     private Supplier supplier;
 }

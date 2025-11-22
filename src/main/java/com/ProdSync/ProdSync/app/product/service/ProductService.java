@@ -1,6 +1,5 @@
 package com.ProdSync.ProdSync.app.product.service;
 
-import com.ProdSync.ProdSync.app.costConstants.CostConstants;
 import com.ProdSync.ProdSync.app.item.bean.ItemBean;
 import com.ProdSync.ProdSync.app.item.dao.ItemRepository;
 import com.ProdSync.ProdSync.app.item.domain.Item;
@@ -13,8 +12,6 @@ import com.ProdSync.ProdSync.execption.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -139,7 +136,7 @@ public class ProductService {
                 .items(itemBeans)
                 .build();
 		if (calculateCosts)
-			bean.calculateLandedCost();
+			bean.calculateLandedAndFinalCost();
 		return bean;
     }
 }

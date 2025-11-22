@@ -25,7 +25,7 @@ public class ProductBean {
 	private BigDecimal landedCost;
 	private BigDecimal finalCost;
 
-	public void calculateLandedCost() {
+	public void calculateLandedAndFinalCost() {
 		this.landedCost = items.stream()
 				.map(ItemBean::getLandedCost)
 				.reduce(BigDecimal.ZERO, BigDecimal::add);

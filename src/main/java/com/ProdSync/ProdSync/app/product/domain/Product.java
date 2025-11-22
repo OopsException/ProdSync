@@ -17,6 +17,10 @@ import java.util.List;
 @Table(name = "product")
 public class Product extends AbstractEntity {
 
+	public Product(Integer id) {
+		this.setId(id);
+	}
+
     @Column(name = "name", nullable = false)
     private String name;
 

@@ -16,4 +16,9 @@ public abstract class AbstractEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Setter(AccessLevel.NONE)
     private Integer id;
+
+	@SuppressWarnings("unused")
+	public void setId(Integer id) {
+		this.id = id;
+	}
 }
