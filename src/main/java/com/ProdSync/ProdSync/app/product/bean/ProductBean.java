@@ -19,4 +19,17 @@ public class ProductBean {
     private BigDecimal price;
     private Integer stockQuantity;
     private List<ItemBean> items;
+
+	@Builder.Default
+	private BigDecimal overHead = BigDecimal.valueOf(1.1); // 10% overhead
+	private BigDecimal landedCost;
+	private BigDecimal finalCost;
+
+	public void calculateLandedCost() {
+		this.landedCost = items.stream()
+				.map(ItemBean::getLandedCost)
+				.reduce(BigDecimal.ZERO, BigDecimal::add);
+
+		this.finalCost = landedCost.multiply(overHead);
+	}
 }

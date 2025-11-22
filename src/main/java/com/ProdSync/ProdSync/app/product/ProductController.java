@@ -16,6 +16,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+	// Product APIs
     @GetMapping("/{id}")
     public ResponseEntity<ProductBean> getProduct(@PathVariable Integer id) {
         return ResponseEntity.ok(productService.getProductBean(id));
@@ -43,4 +44,7 @@ public class ProductController {
         productService.delete(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
+
+	// Product Offers APIs
+
 }

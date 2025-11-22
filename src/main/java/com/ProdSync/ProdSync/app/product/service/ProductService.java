@@ -1,5 +1,6 @@
 package com.ProdSync.ProdSync.app.product.service;
 
+import com.ProdSync.ProdSync.app.costConstants.CostConstants;
 import com.ProdSync.ProdSync.app.item.bean.ItemBean;
 import com.ProdSync.ProdSync.app.item.dao.ItemRepository;
 import com.ProdSync.ProdSync.app.item.domain.Item;
@@ -12,6 +13,8 @@ import com.ProdSync.ProdSync.execption.RestException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,12 +38,12 @@ public class ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> RestException.INVALID("Product not found"));
 
-        return toBean(product);
+        return toBean(product, true);
     }
 
     public List<ProductBean> getAllProductBeans() {
-        return productRepository.findAll()
-                .stream().map(this::toBean).toList();
+        return productRepository.findAll().stream()
+				.map(p -> toBean(p, false)).toList();
     }
 
     public void submit(ProductParam param) {
@@ -109,20 +112,24 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
-    private ProductBean toBean(Product product) {
+    private ProductBean toBean(Product product, boolean calculateCosts) {
         List<ItemBean> itemBeans = product.getProductItems().stream()
-                .map(i -> ItemBean.builder()
-                        .id(i.getItem().getId())
-                        .name(i.getItem().getName())
-                        .altName(i.getItem().getAltName())
-                        .serialNumber(i.getItem().getSerialNumber())
-                        .price(i.getItem().getPrice())
-                        .weight(i.getItem().getWeight())
-                        .quantity(i.getQuantity())
-                        .build()
-                ).toList();
+                .map(i -> {
+					ItemBean bean = ItemBean.builder()
+			                .id(i.getItem().getId())
+			                .name(i.getItem().getName())
+			                .altName(i.getItem().getAltName())
+			                .serialNumber(i.getItem().getSerialNumber())
+			                .price(i.getItem().getPrice())
+			                .weight(i.getItem().getWeight())
+			                .quantity(i.getQuantity())
+			                .build();
+					if (calculateCosts)
+						bean.calculateCosts();
+					return bean;
+                }).toList();
 
-        return ProductBean.builder()
+        ProductBean bean = ProductBean.builder()
                 .id(product.getId())
                 .name(product.getName())
                 .altName(product.getAltName())
@@ -131,5 +138,8 @@ public class ProductService {
                 .stockQuantity(product.getStockQuantity())
                 .items(itemBeans)
                 .build();
+		if (calculateCosts)
+			bean.calculateLandedCost();
+		return bean;
     }
 }
