@@ -54,18 +54,18 @@ public class ProductService {
                 .stockQuantity(param.getStockQuantity())
                 .build();
 
-//        List<ProductItemMapping> mappings = param.getItems().stream()
-//                .map(i -> {
-//                    Item item = itemRepository.findById(i.getItemId())
-//                            .orElseThrow(() -> RestException.INVALID("Item not found: " + i.getItemId()));
-//
-//                    return ProductItemMapping.builder()
-//                            .product(product)
-//                            .item(item)
-//                            .quantity(i.getQuantity())
-//                            .build();
-//                }).toList();
-//        product.setProductItems(mappings);
+        List<ProductItemMapping> mappings = param.getItems().stream()
+                .map(i -> {
+                    Item item = itemRepository.findById(i.getItemId())
+                            .orElseThrow(() -> RestException.INVALID("Item not found: " + i.getItemId()));
+
+                    return ProductItemMapping.builder()
+                            .product(product)
+                            .item(item)
+                            .quantity(i.getQuantity())
+                            .build();
+                }).toList();
+        product.setProductItems(mappings);
 
         productRepository.save(product);
     }
@@ -85,19 +85,19 @@ public class ProductService {
         product.setPrice(param.getPrice());
         product.setStockQuantity(param.getStockQuantity());
 
-//        product.getProductItems().clear();
-//        List<ProductItemMapping> newMappings = param.getItems().stream().map(i -> {
-//            Item item = itemRepository.findById(i.getItemId())
-//                    .orElseThrow(() -> RestException.INVALID("Item not found: " + i.getItemId()));
-//
-//            return ProductItemMapping.builder()
-//                    .product(product)
-//                    .item(item)
-//                    .quantity(i.getQuantity())
-//                    .build();
-//        }).toList();
-//
-//        product.getProductItems().addAll(newMappings);
+        product.getProductItems().clear();
+        List<ProductItemMapping> newMappings = param.getItems().stream().map(i -> {
+            Item item = itemRepository.findById(i.getItemId())
+                    .orElseThrow(() -> RestException.INVALID("Item not found: " + i.getItemId()));
+
+            return ProductItemMapping.builder()
+                    .product(product)
+                    .item(item)
+                    .quantity(i.getQuantity())
+                    .build();
+        }).toList();
+
+        product.getProductItems().addAll(newMappings);
 
         productRepository.save(product);
     }
